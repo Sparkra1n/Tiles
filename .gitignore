@@ -1,0 +1,31 @@
+# Ignore build directories
+build/
+build*/
+
+# Ignore CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Ignore other temporary files
+*.tmp
+*.swp
+*.bak
+*.log
+*.DS_Store
+
+# Ignore PowerShell execution logs (if any)
+*.ps1.log
+
+# Ignore compiled binary files
+*.exe
+*.dll
+*.so
+*.out
+*.a
+*.o
+
+# Ignore system-specific files
+Thumbs.db
+.DS_Store
