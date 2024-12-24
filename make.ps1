@@ -14,6 +14,6 @@ switch ($action) {
         Write-Host "Build completed."
     }
     default {
-        Write-Host "Usage: .\Build.ps1 {clean|build}"
+        Write-Host "Usage: .\make.ps1 {clean|build}"
     }
 }
