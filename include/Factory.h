@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <filesystem>
 
 class Factory
 {
@@ -47,9 +48,25 @@ private:
     {
         if (!m_initialized)
         {
-            registerTexture("Grass",  "resources/sprites/grass0.png");
-            registerTexture("Rock",   "resources/sprites/rock.bmp");
-            registerTexture("Player", "resources/sprites/sword.bmp");
+            const std::string spritesPath = "resources/sprites";
+
+            try 
+            {
+                for (const auto& entry : std::filesystem::directory_iterator(spritesPath)) 
+                {
+                    if (entry.is_regular_file()) 
+                    {
+                        const std::string filePath = entry.path().string();
+                        const std::string fileName = entry.path().stem().string(); // Remove file extension
+                        registerTexture(fileName, filePath);
+                    }
+                }
+            } 
+            catch (const std::filesystem::filesystem_error& e) 
+            {
+                throw std::runtime_error("Failed to initialize sprite textures: " + std::string(e.what()));
+            }
+
             m_initialized = true;
         }
     }
