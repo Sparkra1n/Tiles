@@ -12,6 +12,8 @@ switch ($action) {
         cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug
         cmake --build build
         Write-Host "Build completed."
+        Write-Host "Running Program..."
+        ./build/Tiles.exe
     }
     default {
         Write-Host "Usage: .\make.ps1 {clean|build}"
