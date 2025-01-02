@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.11) # FetchContent is available in 3.11+
 project(Tiles)
 
+# Force Clang as the compiler on Linux
+if (UNIX AND NOT APPLE) # Check if building on Linux
+    set(CMAKE_C_COMPILER clang)
+    set(CMAKE_CXX_COMPILER clang++)
+endif()
+
 # Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -30,7 +36,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 target_link_libraries(${PROJECT_NAME} raylib)
 
-
 # Define a custom command to copy the resources folder
 add_custom_command(
     TARGET ${PROJECT_NAME}
@@ -40,12 +45,6 @@ add_custom_command(
             ${CMAKE_BINARY_DIR}/resources
     COMMENT "Copying resources to build directory"
 )
-
-# Web Configurations
-if (${PLATFORM} STREQUAL "Web")
-    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html") # Tell Emscripten to build an example.html file.
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s GL_ENABLE_GET_PROC_ADDRESS=1")
-endif()
 
 # Checks if OSX and links appropriate frameworks (Only required on MacOS)
 if (APPLE)
