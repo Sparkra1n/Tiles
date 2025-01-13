@@ -1,7 +1,7 @@
 #include "Sprite.h"
 
-Sprite::Sprite(const char* path, float speed)
-    : m_renderFlag(true), m_speed(speed)
+Sprite::Sprite(const char* path, const CoordinateTransformer* transformer, float speed)
+    : m_renderFlag(true), m_transformer(transformer), m_speed(speed)
 {
     std::cout << path << "\n";
     m_textureOriginal = LoadTexture(path);
@@ -26,7 +26,6 @@ Sprite::Sprite(const char* path, float speed)
     }
 }
 
-
 Sprite::~Sprite()
 {
     UnloadTexture(m_textureOriginal);
@@ -34,87 +33,32 @@ Sprite::~Sprite()
     UnloadShader(m_shader);
 }
 
-void Sprite::resetSurface()
+void Sprite::setGameBoardCoordinates(Vector2 gameBoardCoordinates)
 {
-    UnloadTexture(m_texture);
-    m_texture = m_textureOriginal;
+    if (!m_transformer)
+        return;
+
+    Vector2 windowCoordinates = m_transformer->toWindowCoordinates(gameBoardCoordinates, m_rect);
+    setWindowCoordinates(windowCoordinates);
 }
 
-bool Sprite::getRenderFlag() const
+void Sprite::setGameBoardCoordinates(int x, int y)
 {
-    return m_renderFlag;
+    if (!m_transformer)
+        return;
+
+    Vector2 gameBoardCoordinates = Vector2{ static_cast<float>(x), static_cast<float>(y) };
+    Vector2 windowCoordinates = m_transformer->toWindowCoordinates(gameBoardCoordinates, m_rect);
+    setWindowCoordinates(windowCoordinates);
 }
 
-Shader Sprite::getShader() const
+Vector2 Sprite::getGameBoardCoordinates() const
 {
-    return m_shader;
+    if (!m_transformer)
+        return {};
+
+    return m_transformer->toGameBoardCoordinates({ m_rect.x, m_rect.y }, m_rect);
 }
-
-void Sprite::onClick()
-{
-    //pushModifier({
-    //    "Click Modifier",
-    //    { 50, 0, 0, 0 }
-    //});
-    //applyAllModifiers();
-}
-
-void Sprite::onFocus()
-{
-    pushModifier({
-        "Highlight",
-        { 0, 50, 0, 0 }
-    });
-    applyAllModifiers();
-}
-
-void Sprite::onBlur()
-{
-    removeModifierByName("Highlight");
-}
-
-Rectangle Sprite::getRect() const
-{
-    return m_rect;
-}
-
-Texture2D Sprite::getTexture() const
-{
-    return m_texture;
-}
-
-
-void Sprite::setWindowCoordinates(const Vector2 windowCoordinates)
-{
-    m_rect.x = windowCoordinates.x;
-    m_rect.y = windowCoordinates.y;
-}
-
-void Sprite::setWindowXCoordinate(const float value)
-{
-    m_rect.x = value;
-}
-
-void Sprite::setWindowYCoordinate(const float value)
-{
-    m_rect.y = value;
-}
-
-void Sprite::show()
-{
-    m_renderFlag = true;
-}
-
-void Sprite::hide()
-{
-    m_renderFlag = false;
-}
-
-Vector2 Sprite::getWindowCoordinates() const
-{
-    return { m_rect.x, m_rect.y };
-}
-
 
 void Sprite::update(const GameState& state)
 {
@@ -203,4 +147,95 @@ void Sprite::applyAllModifiers()
 
     int loc = GetShaderLocation(m_shader, "colorOffset");
     SetShaderValue(m_shader, loc, &combinedOffset, SHADER_UNIFORM_VEC4);
+}
+
+void Sprite::walkPath(const std::vector<Vector2>& path)
+{
+    m_path = path;
+}
+
+void Sprite::resetSurface()
+{
+    UnloadTexture(m_texture);
+    m_texture = m_textureOriginal;
+}
+
+bool Sprite::getRenderFlag() const
+{
+    return m_renderFlag;
+}
+
+Shader Sprite::getShader() const
+{
+    return m_shader;
+}
+
+void Sprite::onClick()
+{
+
+}
+
+void Sprite::onFocus()
+{
+    pushModifier({
+        "Highlight",
+        { 0, 50, 0, 0 }
+    });
+    applyAllModifiers();
+}
+
+void Sprite::onBlur()
+{
+    removeModifierByName("Highlight");
+}
+
+Rectangle Sprite::getRect() const
+{
+    return m_rect;
+}
+
+Texture2D Sprite::getTexture() const
+{
+    return m_texture;
+}
+
+void Sprite::setWindowCoordinates(const Vector2 windowCoordinates)
+{
+    m_rect.x = windowCoordinates.x;
+    m_rect.y = windowCoordinates.y;
+}
+
+void Sprite::setWindowXCoordinate(const float value)
+{
+    m_rect.x = value;
+}
+
+void Sprite::setWindowYCoordinate(const float value)
+{
+    m_rect.y = value;
+}
+
+void Sprite::show()
+{
+    m_renderFlag = true;
+}
+
+void Sprite::hide()
+{
+    m_renderFlag = false;
+}
+
+Vector2 Sprite::getWindowCoordinates() const
+{
+    return { m_rect.x, m_rect.y };
+}
+
+void Sprite::setRotation(float degrees)
+{
+    m_rotation = degrees;
+}
+
+float Sprite::getRotation() const
+{
+    return m_rotation;
 }
