@@ -1,27 +1,21 @@
 #include "Game.h"
 
 Game::Game(const std::string& path, const std::string& playerName) 
-    : m_gameState(), 
-      m_gameBoard(),
-      m_renderer()
-{
-    loadLevel(path, playerName);
-}
-
-void Game::loadLevel(const std::string& path, const std::string& playerName)
 {
     // Initialize Raylib
     InitWindow(1000, 1000, "TilePuzzle");
     SetTargetFPS(60);
 
-    // Initialize GameBoard
-    m_gameBoard.loadBoard(path, playerName);
+    m_gameBoard = GameBoard(path, playerName);
+    m_renderer = Renderer();
 
-    // Load general resources
-    for (auto& entity : m_gameBoard.getTiles())
-        addBackgroundEntity(entity);
+    for (auto& sprite : m_gameBoard.getTiles())
+        m_backgroundSprites.push_back(sprite);
 
-    addForegroundEntity(m_gameBoard.getPlayer());
+    for (auto& sprite : m_gameBoard.getResidingSprites())
+        m_foregroundSprites.push_back(sprite);
+
+    m_foregroundSprites.push_back(m_gameBoard.getPlayer());
 }
 
 void Game::run()
@@ -73,14 +67,4 @@ void Game::update(const double deltaTime) {
     m_gameState.mousePosition = mousePosition;
     m_gameState.deltaTime = deltaTime;
     m_gameBoard.update(m_gameState);
-}
-
-void Game::addBackgroundEntity(const std::shared_ptr<Sprite>& entity)
-{
-    m_backgroundSprites.push_back(entity);
-}
-
-void Game::addForegroundEntity(const std::shared_ptr<Sprite>& entity)
-{
-    m_foregroundSprites.push_back(entity);
 }
