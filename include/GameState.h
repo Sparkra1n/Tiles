@@ -3,6 +3,7 @@
 
 struct GameState
 {
-	Vector2 mousePosition;
-	float deltaTime;
+	GameState() = default;
+	Vector2 mousePosition{};
+	float deltaTime{};
 };
