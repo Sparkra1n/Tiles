@@ -8,19 +8,37 @@
 #include <sstream>
 #include "GameState.h"
 #include "Modifier.h"
+#include "CoordinateTransformer.h"
 
 class Sprite
 {
 public:
     Sprite(const char* path, float speed = 0);
     ~Sprite();
+
+    /**
+     * @brief Callback when a sprite gets clicked
+     */
     void onClick();
+
+    /**
+     * @brief Callback when the mouse hovers over the sprite
+     */
     void onFocus();
+
+    /**
+     * Callback when the mouse stops hovering over the sprite
+     */
     void onBlur();
+    
+    void setGameBoardCoordinates(Vector2 gameBoardCoordinates);
+    void setGameBoardCoordinates(int x, int y);
+    Vector2 getGameBoardCoordinates() const;
     void setWindowCoordinates(Vector2 windowCoordinates);
+    void setWindowCoordinates(float x, float y);
     void setWindowXCoordinate(float value);
     void setWindowYCoordinate(float value);
-    void setRotation(float angle);
+    void setRotation(float degrees);
     void show();
     void hide();
     void resetSurface();
@@ -31,12 +49,26 @@ public:
     Vector2 getWindowCoordinates() const;
     Texture2D getTexture() const;
     Shader getShader() const;
-
-    // Modifiers
     void removeModifierByName(const std::string& name);
     void applyAllModifiers();
+
+    /**
+     * @brief Push a new modifier onto the stack and rebuilds the modifier stack
+     * @param Modifier new modifier
+     */
     void pushModifier(const Modifier& modifier);
+
+    /**
+     * @brief Removes the modifier on the top of the stack and rebuilds the modifier stack
+     * @return Removed modifier 
+     */
     Modifier popModifier();
+
+    /**
+     * @brief Set a path that will be traversed by the sprite
+     * @param path vector of Vector2 in GameBoard coordinates
+     */
+    void walkPath(const std::vector<Vector2>& path);
 
 protected:
     bool m_renderFlag{};

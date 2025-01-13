@@ -1,9 +1,8 @@
 #include "Sprite.h"
 
-Sprite::Sprite(const char* path, const CoordinateTransformer* transformer, float speed)
-    : m_renderFlag(true), m_transformer(transformer), m_speed(speed)
+Sprite::Sprite(const char* path, float speed)
+    : m_renderFlag(true), m_speed(speed)
 {
-    std::cout << path << "\n";
     m_textureOriginal = LoadTexture(path);
     m_texture = m_textureOriginal;
     m_rect = {
@@ -35,29 +34,20 @@ Sprite::~Sprite()
 
 void Sprite::setGameBoardCoordinates(Vector2 gameBoardCoordinates)
 {
-    if (!m_transformer)
-        return;
-
-    Vector2 windowCoordinates = m_transformer->toWindowCoordinates(gameBoardCoordinates, m_rect);
+    Vector2 windowCoordinates = CoordinateTransformer::toWindowCoordinates(gameBoardCoordinates, m_rect);
     setWindowCoordinates(windowCoordinates);
 }
 
 void Sprite::setGameBoardCoordinates(int x, int y)
 {
-    if (!m_transformer)
-        return;
-
     Vector2 gameBoardCoordinates = Vector2{ static_cast<float>(x), static_cast<float>(y) };
-    Vector2 windowCoordinates = m_transformer->toWindowCoordinates(gameBoardCoordinates, m_rect);
+    Vector2 windowCoordinates = CoordinateTransformer::toWindowCoordinates(gameBoardCoordinates, m_rect);
     setWindowCoordinates(windowCoordinates);
 }
 
 Vector2 Sprite::getGameBoardCoordinates() const
 {
-    if (!m_transformer)
-        return {};
-
-    return m_transformer->toGameBoardCoordinates({ m_rect.x, m_rect.y }, m_rect);
+    return CoordinateTransformer::toGameBoardCoordinates({ m_rect.x, m_rect.y });
 }
 
 void Sprite::update(const GameState& state)
@@ -201,16 +191,21 @@ Texture2D Sprite::getTexture() const
 
 void Sprite::setWindowCoordinates(const Vector2 windowCoordinates)
 {
-    m_rect.x = windowCoordinates.x;
-    m_rect.y = windowCoordinates.y;
+    setWindowCoordinates(windowCoordinates.x, windowCoordinates.y);
 }
 
-void Sprite::setWindowXCoordinate(const float value)
+void Sprite::setWindowCoordinates(float x, float y)
+{
+    m_rect.x = x;
+    m_rect.y = y;
+}
+
+void Sprite::setWindowXCoordinate(float value)
 {
     m_rect.x = value;
 }
 
-void Sprite::setWindowYCoordinate(const float value)
+void Sprite::setWindowYCoordinate(float value)
 {
     m_rect.y = value;
 }
