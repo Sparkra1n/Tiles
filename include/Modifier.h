@@ -1,7 +1,5 @@
 #pragma once
-#include <cstdint>
 #include <raylib.h>
-#include <stdexcept>
 #include <string>
 
 struct Modifier

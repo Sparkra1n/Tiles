@@ -4,9 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <filesystem>
-#include <vector>
-#include <regex>
-#include "Direction.h"
+#include "TileRules.h"
 
 class SpriteFactory
 {
@@ -49,71 +47,51 @@ private:
 
     void init()
     {
-        if (!m_initialized)
-        {
-            const std::string spritesPath = "resources/sprites";
+        if (m_initialized)
+            return;
 
-            try 
+        const std::string gameObjectsPath = ("resources/sprites/gameobjects");
+        const std::string tilesPath = ("resources/sprites/tiles");
+
+        try 
+        {
+            for (const auto& entry : std::filesystem::directory_iterator(gameObjectsPath)) 
             {
-                for (const auto& entry : std::filesystem::directory_iterator(spritesPath)) 
+                if (entry.is_regular_file()) 
                 {
-                    if (entry.is_regular_file()) 
-                    {
-                        const std::string filePath = entry.path().string();
-                        const std::string fileName = entry.path().stem().string(); // Remove file extension
-                        registerTexture(fileName, filePath);
-                    }
+                    const std::string filePath = entry.path().string();
+                    const std::string fileName = entry.path().stem().string(); // Remove file extension
+                    registerTexture(fileName, filePath);
                 }
-            } 
-            catch (const std::filesystem::filesystem_error& e) 
-            {
-                throw std::runtime_error("Failed to initialize sprite textures: " + std::string(e.what()));
             }
 
-            m_initialized = true;
+            for (const auto& entry : std::filesystem::directory_iterator(tilesPath))
+            {
+                if (entry.is_regular_file()) 
+                {
+                    const std::string filePath = entry.path().string();
+                    const std::string fileName = entry.path().stem().string(); // Remove file extension
+
+                    // Extract file name
+                    std::regex pattern(R"((\w+)_(solid)(?:_(\w+))?|(\w+)_((?!solid)\w+)_(\w+)(?:_(\w+))?)");
+                    std::smatch matches;
+                    if (!std::regex_match(fileName, matches, pattern))
+                        throw std::invalid_argument("Invalid tile sprite filename: " + filePath);
+
+                    std::string material = matches[1];
+                    std::string variant = matches[4].matched ? matches[4].str() : "";
+                    registerTexture(material, filePath);
+                }
+            }
         }
-    }
-
-    void parseTileFilename(const std::string& filename)
-    {
-        // Parse tile filenames
-        std::regex pattern(R"(tile_(\w+)_(\w+)_(\w+)(?:_(\w+))?)");
-        std::smatch matches;
-
-        if (!std::regex_match(filename, matches, pattern)) 
-            throw std::invalid_argument("Invalid tile sprite filename: " + filename);
-
-        std::string material = matches[1];      // Material: grass, water, etc.
-        std::string type = matches[2];          // Type: solid, border
-        std::string directionStr = matches[3];  // Direction
-        std::string variant = matches[4].matched ? matches[4].str() : "";
-        Direction::Type direction = Direction::stringToDirection(directionStr);
-
-        // Initialize connection rules
-        if (type == "solid" && direction == Direction::NOWHERE) 
-            m_connectionRules[filename][Direction::NOWHERE] = { material + "_solid_nowhere" };
-    
-        else if (type == "border")
+        catch (const std::filesystem::filesystem_error& e)
         {
-            std::array<Direction::Type, 10> directions = Direction::getDirections();            
-            for (Direction::Type d : directions) 
-            {
-                m_connectionRules[filename][d].push_back("water_solid_nowhere"); // Inward
-                m_connectionRules[filename][d].push_back(material + "_solid_nowhere"); // Outward
-                
-                std::vector<Direction::Type> neighbors = getNeighborDirections(d);
-                for (Direction::Type neighbor : neighbors)
-                    m_connectionRules[filename][d].push_back(material + "_border_" + directionToString(neighbor));
-            }
+            throw std::runtime_error("Failed to initialize textures: " + std::string(e.what()));
         }
+
+        m_initialized = true;
     }
 
     bool m_initialized = false;
-
-    using SpriteName = std::string;
-    using SpritePath = std::string;
-    using TileName = std::string;
-    using ValidConnections = std::vector<TileName>;
-    std::unordered_map<SpriteName, SpritePath> m_registry;
-    static std::unordered_map<TileName, std::unordered_map<Direction::Type, ValidConnections>> m_connectionRules;
+    std::unordered_map<std::string, std::string> m_registry;
 };
