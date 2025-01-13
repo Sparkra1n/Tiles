@@ -2,6 +2,11 @@
 build/
 build*/
 
+.vscode/*
+
+#Ignore cache
+.cache/*
+
 # Ignore CMake generated files
 CMakeFiles/
 CMakeCache.txt
