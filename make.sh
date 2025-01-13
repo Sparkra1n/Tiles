@@ -1,5 +1,4 @@
 #!/bin/bash
-
 action=$1
 
 case $action in
@@ -14,12 +13,17 @@ case $action in
         export CXX=clang++
 
         cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
-        cmake --build build
-        echo "Build completed."
-        echo "Running Program..."
-        ./build/Tiles
+        if cmake --build build; then
+            echo "Build completed successfully."
+            echo "Running Program..."
+            ./build/Tiles
+        else
+            echo "Build failed. The program will not be run."
+            exit 1
+        fi
         ;;
     *)
         echo "Usage: ./make.sh {clean|build}"
         ;;
 esac
+
