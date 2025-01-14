@@ -418,7 +418,8 @@ std::vector<std::shared_ptr<Tile>> GameBoard::getNeighborTiles(const std::shared
         if (adjacentCoordinate.x < 0 || adjacentCoordinate.x > m_boardColumns || 
                 adjacentCoordinate.y < 0 || adjacentCoordinate.y > m_boardRows)
             continue;
-        auto tile = m_tiles[adjacentCoordinate.x][adjacentCoordinate.y];
+        auto neighbor = m_tiles[adjacentCoordinate.x][adjacentCoordinate.y];
+        neighbors.push_back(neighbor);
     }
     return neighbors;
 }
