@@ -1,4 +1,5 @@
 #include "Sprite.h"
+#include <iostream>
 
 Sprite::Sprite(const char* path, float speed)
     : m_renderFlag(true), m_speed(speed)
@@ -141,7 +142,12 @@ void Sprite::applyAllModifiers()
 
 void Sprite::walkPath(const std::vector<Vector2>& path)
 {
-    m_path = path;
+    m_path = {};
+    for (const auto vec : path) 
+    {
+         Vector2 windowCoordinate = CoordinateTransformer::toWindowCoordinates(vec, m_rect);
+         m_path.push_back(windowCoordinate);
+    }
 }
 
 void Sprite::resetSurface()
