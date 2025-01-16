@@ -2,7 +2,6 @@
 #pragma once
 #include "raylib.h"
 #include <cmath>
-#include <iostream>
 
 class CoordinateTransformer 
 {
@@ -19,8 +18,8 @@ public:
     {
         float offsetX = rectangle.width / 2.0f;
         float offsetY = rectangle.height / 2.0f;
-        float x = gameBoardCoordinates.x * m_tileSize + offsetX;
-        float y = gameBoardCoordinates.y * m_tileSize + offsetY;
+        float x = gameBoardCoordinates.x * m_tileSize + std::floor(m_tileSize / 2) - offsetX;
+        float y = gameBoardCoordinates.y * m_tileSize + std::floor(m_tileSize / 2) - offsetY;
         return { x, y };
     }
 
