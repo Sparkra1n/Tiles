@@ -68,7 +68,7 @@ GameBoard::GameBoard(const std::string& path, const std::string& playerName)
         }
     }
 
-    m_player = SpriteFactory::create<Sprite>(playerName);
+    m_player = SpriteFactory::create<Sprite>(playerName, 100.0f);
 }
 
 void GameBoard::readDimensions(const std::string& path)
@@ -415,8 +415,8 @@ std::vector<std::shared_ptr<Tile>> GameBoard::getNeighborTiles(const std::shared
     for (const auto& direction : directions)
     {
         Vector2 adjacentCoordinate = tileCoordinate + direction;
-        if (adjacentCoordinate.x < 0 || adjacentCoordinate.x > m_boardColumns || 
-                adjacentCoordinate.y < 0 || adjacentCoordinate.y > m_boardRows)
+        if (adjacentCoordinate.x < 0 || adjacentCoordinate.x >= m_boardColumns || 
+                adjacentCoordinate.y < 0 || adjacentCoordinate.y >= m_boardRows)
             continue;
         auto neighbor = m_tiles[adjacentCoordinate.x][adjacentCoordinate.y];
         neighbors.push_back(neighbor);
@@ -452,6 +452,7 @@ std::vector<std::shared_ptr<Tile>> GameBoard::getPathToTile(const std::shared_pt
             return reversePath(current);
 
         auto neighbors = getNeighborTiles(current->getCorrespondingTile());
+        auto a = current->getCorrespondingTile()->getGameBoardCoordinates();
         for (const auto& neighbor : neighbors)
         {
             if (closedList.count(neighbor))
